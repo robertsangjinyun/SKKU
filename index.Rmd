@@ -1,0 +1,25 @@
+---
+title: "윤상진(Robert Yun)"
+image: "Robert.jpg"
+links:
+  - label: GitHub
+    url: "https://github.com/robertsangjinyun"
+
+  - label: Email
+    url: "mailto:robertsangjinyun@gmail.com"
+site: distill::distill_website
+output:
+  postcards::jolla
+---
+Welcome all visitors to my website. My name is Robert Yun who is majoring in actuarial science from Sunkyunkwan University.This is my third semester and this site will be used to upload my statistics class assignments or my personal portfolios. Thank you for visiting my website and have a good look!
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+# Learn more about creating websites with Distill at:
+# https://rstudio.github.io/distill/website.html
+
+# Learn more about publishing to GitHub Pages at:
+# https://rstudio.github.io/distill/publish_website.html#github-pages
+
+```
+

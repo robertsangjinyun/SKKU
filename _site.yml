@@ -1,0 +1,12 @@
+name: "."
+title: "MyWebSite"
+description: |
+  MyWebSite
+output_dir: "docs"
+navbar:
+  right:
+    - text: "Home"
+      href: index.html
+    - text: "Portfolio"
+      href: portfolio.html
+output: distill::distill_article
