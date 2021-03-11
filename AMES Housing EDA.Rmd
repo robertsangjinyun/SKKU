@@ -1,0 +1,62 @@
+---
+title: "AMES Housing EDA"
+author: "Robert"
+date: '2021 3 11 '
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+```{r cars}
+install.packages("tidyverse")
+library(ggplot2)
+install.packages("AmesHousing")
+library(AmesHousing)
+library(dplyr)
+House = AmesHousing::ames_raw
+```
+
+AmesHousing 데이터의 변수 설명확인
+
+```{r pressure, echo=FALSE}
+?AmesHousing::ames_raw
+```
+
+Factor 변수들과 covariate 변수들이 확인되므로 factor 변수안에 level별 SalePrice의 평균에 큰 차이를 보이면 설명변수 후보로 생각하고 covariate 변수와 SalePrice간에 corrlation이 보이면 설명변수 후보로 일단 간주하겠다. 또한 factor 변수들의 level별 데이터 수가 작을 경우와 level의 수가 너무 많을 경우 평균에 큰 차이를 보여도 설명변수에서 제외하겠다.
+
+```{r}
+House$MSZoning = House$`MS Zoning`
+House %>% group_by(MSZoning) %>% summarize(mean = mean(SalePrice))
+```
+Level 별로 평균의 차이가 보이기에 MS Zoning을 설명변수 후보로 두겠다.
+
+```{r}
+House %>% group_by(`Lot Shape`) %>% summarize(mean = mean(SalePrice))
+```
+Level 별로 평균의 차이가 보이기에 Lot Shape의 level 중에서 IR와 Reg로 구별하여 설명변수 후보로 선정하겠다.
+
+```{r}
+House$HouseStyle = House$`House Style`
+House %>% group_by(HouseStyle) %>% summarize(mean = mean(SalePrice))
+```
+
+Level 별로 평균의 차이가 보이기에 House Style를 설명변수 후보로 두겠다.
+
+```{r}
+ggplot(House, aes(x = `1st Flr SF`, y = SalePrice)) + geom_point()
+```
+1st Flr SF와 Sales Price간에 상관관계가 있는 것으로 보이므로 1st Flir SF를 설명변수 후보로 두겠다. 
+```{r}
+ggplot(House, aes(x = `1st Flr SF`, y = House$`2nd Flr SF`)) + geom_point()
+```
+1st Flr 와 2nd Flr간에 상관관계가 있기에 2nd Flr는 설명변수로 제외하겠다. 
+
+```{r}
+ggplot(House, aes(x = `1st Flr SF`, y = House$`Garage Area`)) + geom_point()
+```
+Garage area와 1st Flr 간에 상관관계가 보이므로 Garage area도 제외하겠다. 
+즉, factor 후보로 MS Zoning, Lot Shape, House Style, 그리고 covariate 후보로 1st Flr 로 두겠다. 
