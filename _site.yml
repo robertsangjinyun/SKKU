@@ -14,5 +14,5 @@ navbar:
     - text: "Assingnment"
       menu:
         - text: "AmesHosuing EDA"
-          href: AMES-Housing-EDA.html
+          href: AmesHousingEDA.html
 output: distill::distill_article
