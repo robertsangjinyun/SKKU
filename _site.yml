@@ -7,6 +7,12 @@ navbar:
   right:
     - text: "Home"
       href: index.html
+    
     - text: "Portfolio"
       href: portfolio.html
+ 
+    - text: "Assingnment"
+      menu:
+        - text: "AmesHosuing EDA"
+          href: AMES-Housing-EDA.html
 output: distill::distill_article

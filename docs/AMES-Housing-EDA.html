@@ -647,6 +647,7 @@ body {
        code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
        pre:not([class]) { background-color: white }</style>
 <script src="/home/rstudio-user/R/x86_64-pc-linux-gnu-library/4.0/rmarkdown/rmd/h/navigation-1.1/tabsets.js"></script>
+<script src="/home/rstudio-user/R/x86_64-pc-linux-gnu-library/4.0/rmarkdown/rmd/h/navigation-1.1/codefolding.js"></script>
 <link href="/home/rstudio-user/R/x86_64-pc-linux-gnu-library/4.0/rmarkdown/rmd/h/highlightjs/default.css" rel="stylesheet" />
 <script src="/home/rstudio-user/R/x86_64-pc-linux-gnu-library/4.0/rmarkdown/rmd/h/highlightjs/highlight.js"></script>
 
@@ -832,6 +833,9 @@ $(document).ready(function () {
 </style>
 
 <!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
 
 
 
@@ -855,6 +859,16 @@ $(document).ready(function () {
 <div class="nav-right">
 <a href="index.html">Home</a>
 <a href="portfolio.html">Portfolio</a>
+<div class="nav-dropdown">
+<button class="nav-dropbtn">
+Assingnment
+ 
+<span class="down-arrow">&#x25BE;</span>
+</button>
+<div class="nav-dropdown-content">
+<a href="AMES-Housing-EDA.html">AmesHosuing EDA</a>
+</div>
+</div>
 <a href="javascript:void(0);" class="nav-toggle">&#9776;</a>
 </div>
 </nav>
@@ -884,12 +898,32 @@ $(document).ready(function () {
 <li>
   <a href="portfolio.html">Portfolio</a>
 </li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Assingnment
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="AMES-Housing-EDA.html">AmesHosuing EDA</a>
+    </li>
+  </ul>
+</li>
       </ul>
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
 
 <div id="header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
 
 
 
@@ -900,10 +934,6 @@ $(document).ready(function () {
 </div>
 
 
-<div id="r-markdown" class="section level2">
-<h2>R Markdown</h2>
-<p>This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <a href="http://rmarkdown.rstudio.com" class="uri">http://rmarkdown.rstudio.com</a>.</p>
-<p>When you click the <strong>Knit</strong> button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:</p>
 <pre class="r"><code>install.packages(&quot;tidyverse&quot;)</code></pre>
 <pre><code>## Installing package into &#39;/home/rstudio-user/R/x86_64-pc-linux-gnu-library/4.0&#39;
 ## (as &#39;lib&#39; is unspecified)</code></pre>
@@ -912,10 +942,63 @@ install.packages(&quot;AmesHousing&quot;)</code></pre>
 <pre><code>## Installing package into &#39;/home/rstudio-user/R/x86_64-pc-linux-gnu-library/4.0&#39;
 ## (as &#39;lib&#39; is unspecified)</code></pre>
 <pre class="r"><code>library(AmesHousing)
-House = AmesHousing::ames_raw</code></pre>
+library(dplyr)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;dplyr&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:stats&#39;:
+## 
+##     filter, lag</code></pre>
+<pre><code>## The following objects are masked from &#39;package:base&#39;:
+## 
+##     intersect, setdiff, setequal, union</code></pre>
+<pre class="r"><code>House = AmesHousing::ames_raw</code></pre>
 <p>AmesHousing 데이터의 변수 설명확인</p>
-<p>Note that the <code>echo = FALSE</code> parameter was added to the code chunk to prevent printing of the R code that generated the plot.</p>
-</div>
+<p>Factor 변수들과 covariate 변수들이 확인되므로 factor 변수안에 level별 SalePrice의 평균에 큰 차이를 보이면 설명변수 후보로 생각하고 covariate 변수와 SalePrice간에 corrlation이 보이면 설명변수 후보로 일단 간주하겠다. 또한 factor 변수들의 level별 데이터 수가 작을 경우와 level의 수가 너무 많을 경우 평균에 큰 차이를 보여도 설명변수에서 제외하겠다.</p>
+<pre class="r"><code>House$MSZoning = House$`MS Zoning`
+House %&gt;% group_by(MSZoning) %&gt;% summarize(mean = mean(SalePrice))</code></pre>
+<pre><code>## # A tibble: 7 x 2
+##   MSZoning    mean
+##   &lt;chr&gt;      &lt;dbl&gt;
+## 1 A (agr)   47300 
+## 2 C (all)   79795.
+## 3 FV       218987.
+## 4 I (all)   80312.
+## 5 RH       136420.
+## 6 RL       191283.
+## 7 RM       126781.</code></pre>
+<p>Level 별로 평균의 차이가 보이기에 MS Zoning을 설명변수 후보로 두겠다.</p>
+<pre class="r"><code>House %&gt;% group_by(`Lot Shape`) %&gt;% summarize(mean = mean(SalePrice))</code></pre>
+<pre><code>## # A tibble: 4 x 2
+##   `Lot Shape`    mean
+##   &lt;chr&gt;         &lt;dbl&gt;
+## 1 IR1         210925.
+## 2 IR2         229588.
+## 3 IR3         221923.
+## 4 Reg         162580.</code></pre>
+<p>Level 별로 평균의 차이가 보이기에 Lot Shape의 level 중에서 IR와 Reg로 구별하여 설명변수 후보로 선정하겠다.</p>
+<pre class="r"><code>House$HouseStyle = House$`House Style`
+House %&gt;% group_by(HouseStyle) %&gt;% summarize(mean = mean(SalePrice))</code></pre>
+<pre><code>## # A tibble: 8 x 2
+##   HouseStyle    mean
+##   &lt;chr&gt;        &lt;dbl&gt;
+## 1 1.5Fin     137530.
+## 2 1.5Unf     109663.
+## 3 1Story     178700.
+## 4 2.5Fin     220000 
+## 5 2.5Unf     177158.
+## 6 2Story     206990.
+## 7 SFoyer     143473.
+## 8 SLvl       165527.</code></pre>
+<p>Level 별로 평균의 차이가 보이기에 House Style를 설명변수 후보로 두겠다.</p>
+<pre class="r"><code>ggplot(House, aes(x = `1st Flr SF`, y = SalePrice)) + geom_point()</code></pre>
+<p><img src="AMES-Housing-EDA_files/figure-html/unnamed-chunk-4-1.png" width="672" /> 1st Flr SF와 Sales Price간에 상관관계가 있는 것으로 보이므로 1st Flir SF를 설명변수 후보로 두겠다.</p>
+<pre class="r"><code>ggplot(House, aes(x = `1st Flr SF`, y = House$`2nd Flr SF`)) + geom_point()</code></pre>
+<pre><code>## Warning: Use of `House$`2nd Flr SF`` is discouraged. Use `2nd Flr SF` instead.</code></pre>
+<p><img src="AMES-Housing-EDA_files/figure-html/unnamed-chunk-5-1.png" width="672" /> 1st Flr 와 2nd Flr간에 상관관계가 있기에 2nd Flr는 설명변수로 제외하겠다.</p>
+<pre class="r"><code>ggplot(House, aes(x = `1st Flr SF`, y = House$`Garage Area`)) + geom_point()</code></pre>
+<pre><code>## Warning: Use of `House$`Garage Area`` is discouraged. Use `Garage Area` instead.</code></pre>
+<pre><code>## Warning: Removed 1 rows containing missing values (geom_point).</code></pre>
+<p><img src="AMES-Housing-EDA_files/figure-html/unnamed-chunk-6-1.png" width="672" /> Garage area와 1st Flr 간에 상관관계가 보이므로 Garage area도 제외하겠다. 즉, factor 후보로 MS Zoning, Lot Shape, House Style, 그리고 covariate 후보로 1st Flr 로 두겠다.</p>
 
 <!--radix_placeholder_site_after_body-->
 <!--/radix_placeholder_site_after_body-->
@@ -954,6 +1037,11 @@ $(document).ready(function () {
 </script>
 
 <!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
 
 
 <!-- dynamically load mathjax for compatibility with self-contained -->
