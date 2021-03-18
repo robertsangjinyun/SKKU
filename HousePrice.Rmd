@@ -149,7 +149,20 @@ exp(predict(fit3,test))
 #Test 데이터에 SalePrice 만들기 
 
 ```{r}
-test %<>% mutate(Saleprice = exp(predict(fit3,test)))
+test %<>% mutate(SalePrice = exp(predict(fit3,test)))
 glimpse(test)
 ```
 SalePrice열 확인
+
+
+#Csv 파일 생성
+```{r}
+write.csv(test, "prediction.csv")
+```
+
+#Submission 규격에 맞게 파일 생성
+```{r}
+ForSubmission = test %>% select(Id, SalePrice)
+write.csv(ForSubmission, "ForSubmission.csv")
+```
+

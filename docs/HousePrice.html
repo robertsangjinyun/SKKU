@@ -1896,7 +1896,7 @@ summary(fit3)</code></pre>
 ##       1457       1458       1459 
 ##  143690.14  142170.16  217101.70</code></pre>
 <p>#Test 데이터에 SalePrice 만들기</p>
-<pre class="r"><code>test %&lt;&gt;% mutate(Saleprice = exp(predict(fit3,test)))
+<pre class="r"><code>test %&lt;&gt;% mutate(SalePrice = exp(predict(fit3,test)))
 glimpse(test)</code></pre>
 <pre><code>## Rows: 1,459
 ## Columns: 81
@@ -1980,8 +1980,13 @@ glimpse(test)</code></pre>
 ## $ YrSold        &lt;int&gt; 2010, 2010, 2010, 2010, 2010, 2010, 2010, 2010, 2010, 20…
 ## $ SaleType      &lt;chr&gt; &quot;WD&quot;, &quot;WD&quot;, &quot;WD&quot;, &quot;WD&quot;, &quot;WD&quot;, &quot;WD&quot;, &quot;WD&quot;, &quot;WD&quot;, &quot;WD&quot;, &quot;W…
 ## $ SaleCondition &lt;chr&gt; &quot;Normal&quot;, &quot;Normal&quot;, &quot;Normal&quot;, &quot;Normal&quot;, &quot;Normal&quot;, &quot;Norma…
-## $ Saleprice     &lt;dbl&gt; 123861.1, 160762.4, 174099.5, 194373.7, 218677.7, 176438…</code></pre>
+## $ SalePrice     &lt;dbl&gt; 123861.1, 160762.4, 174099.5, 194373.7, 218677.7, 176438…</code></pre>
 <p>SalePrice열 확인</p>
+<p>#Csv 파일 생성</p>
+<pre class="r"><code>write.csv(test, &quot;prediction.csv&quot;)</code></pre>
+<p>#Submission 규격에 맞게 파일 생성</p>
+<pre class="r"><code>ForSubmission = test %&gt;% select(Id, SalePrice)
+write.csv(ForSubmission, &quot;ForSubmission.csv&quot;)</code></pre>
 </div>
 
 <!--radix_placeholder_site_after_body-->
