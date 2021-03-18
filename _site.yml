@@ -15,4 +15,6 @@ navbar:
       menu:
         - text: "AmesHosuing EDA"
           href: AmesHousingEDA.html
+        - text: "HousePricing"
+          href: HousePrice.html
 output: distill::distill_article
