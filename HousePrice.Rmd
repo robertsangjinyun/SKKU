@@ -15,7 +15,7 @@ knitr::opts_chunk$set(echo = TRUE)
   설명변수 전부를 넣고 *osl_step_all_possible()* 를 통해서 Mallow's CP가 작은 몇개의 모델 선정한다.다음 train data에서 30% 추출한 test data로 prediction 했을 때 가장 작은 MSE를 가지는 모델을 최종 모델로 선정하고 실제 test data를 통해 prediction을 한다. 
 
 
-##첫번쨰 접근법의 문제
+##첫번째 접근법의 문제
  
   1.*osl_step_all_possible()*를 하기에는 설명변수가 너무 많아서 실제로 *용량           부족*으로 함수가 돌아가지 않는다.
   2. Train data에서 30% 추출하면서 남은 70%의 train data에 factor 변수의 *level 
@@ -28,7 +28,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 
 
-##두번쨰 접근법의 문제
+##두번째 접근법의 문제
   
   1. *Over-fitting* 문제의 가능성
   2. 실제 test data에 "NA" 데이터들이 포함되어 있어서 적합한 모델을 통한 추정값이     "NA"가 나온다. Submission rule에서 모든 열에 대한 추정값을 원하기 때문에 문제     이다. 
