@@ -1,0 +1,229 @@
+---
+title: "HomeWork1"
+author: "Robert"
+date: '2021 4 1 '
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Libraries
+
+
+
+```{r load_lib, message=FALSE, warning=FALSE, results='hide'}
+library(tidymodels)
+library(tidyverse)
+library(magrittr)
+library(skimr)
+library(knitr)
+library(glmnet)
+library(data.table)
+theme_set(theme_bw())
+```
+
+## Data load
+
+
+
+```{r, message=FALSE}
+train = read_csv("train.csv")
+test = read_csv("test.csv")
+
+```
+
+
+
+```{r}
+all_data = bind_rows(train, test) %>% 
+  janitor::clean_names()
+
+```
+
+## Make recipe
+
+
+
+```{r}
+housing_recipe = all_data %>% 
+  recipe(sale_price ~ .) %>%
+  step_rm(id) %>% 
+  step_log(sale_price) %>% 
+  step_impute_mode(all_nominal()) %>% 
+  step_dummy(all_nominal()) %>% 
+  step_impute_mean(all_predictors()) %>%
+  step_normalize(all_predictors()) %>% 
+  prep(training = all_data)
+
+```
+
+## `juice` the all_data2 and split
+
+```{r}
+all_data2 = juice(housing_recipe)
+```
+
+
+
+
+```{r}
+train_index = seq_len(nrow(train))
+train2 = all_data2[train_index,]
+test2 = all_data2[-train_index,]
+```
+
+
+
+
+# Split the train into two
+
+
+
+```{r}
+set.seed(1993)
+
+validation_split = validation_split(train2, prop = 0.7)
+
+
+```
+
+
+
+# Set the tuning spec
+
+```{r}
+tune_spec = linear_reg(penalty = tune(), mixture = 1) %>%
+  set_engine("glmnet")
+
+lambda_grid = grid_regular(penalty(), levels = 100)
+
+```
+
+# Set workflow()
+
+```{r}
+workflow = workflow() %>%
+  add_model(tune_spec) %>% 
+  add_formula(sale_price ~ .)
+```
+
+
+# Tuning the lambda
+
+```{r}
+
+
+tune_result = workflow %>% 
+  tune_grid(validation_split,
+            grid = lambda_grid,
+            metrics = metric_set(rmse))
+```
+
+```{r}
+tune_result %>% 
+  collect_metrics()
+```
+
+# Visualization of the tunning result
+
+```{r message=FALSE}
+tune_result %>%
+  collect_metrics() %>%
+  ggplot(aes(penalty, mean, color = .metric)) +
+  geom_line(size = 1.5) +
+  scale_x_log10() +
+  theme(legend.position = "none") +
+  labs(title = "RMSE")
+```
+
+
+
+
+
+## Generating Function and Lasso Plot
+
+
+
+```{r message=FALSE, warning=FALSE}
+
+assignment = function(lambda, mix) {
+  
+
+
+model = 
+    linear_reg(penalty = lambda, # tuned penalty
+               mixture = mix) %>% # lasso: 1, ridge: 0
+    set_engine("glmnet")
+
+fitting = 
+    model %>% 
+    fit(sale_price ~ ., data = train2)
+
+
+
+fit = fitting %>% tidy()
+mydata = as.data.frame(fit)
+mydata2 = transpose(mydata[,-1])
+mydata2$penalty = mydata2[2,1]
+mydata2 = mydata2[-2,]
+mydata2 %>% return()
+}
+
+
+leng = nrow(grid_regular(penalty(), levels = 100))
+g = grid_regular(penalty(), levels = 100)
+g2 = as.data.frame(g)
+
+#Seed Value(Lasso)
+a = assignment(g2[1,1],1)
+
+#Generating a Row One By One
+for (i in 2:leng) { 
+  b = assignment(g2[i,1],1)
+  a = rbind(a,b)
+  
+}
+
+#Hide Intercept
+a2 = a[,-1]
+a2 = as.data.table(a2)
+
+
+#Plot Lasso
+mdf <- melt(a2,id.vars="penalty")
+ggplot(mdf, aes( x = log(penalty), y=value, group=variable ))+geom_line(aes(color = variable),show.legend = FALSE)
+
+
+```
+
+
+# Plot Ridge
+
+
+```{r message=FALSE, warning=FALSE}
+
+
+#Seed Value(Ridge)
+a = assignment(g2[1,1],0)
+
+#Generating a Row One By One
+for (i in 2:leng) { 
+  b = assignment(g2[i,1],0)
+  a = rbind(a,b)
+  
+}
+
+#Hide Intercept
+a2 = a[,-1]
+
+a2 = as.data.table(a2)
+
+
+#Plot Ridge
+mdf <- melt(a2,id.vars="penalty")
+ggplot(mdf, aes( x = log(penalty), y=value, group=variable ))+geom_line(aes(color = variable),show.legend = FALSE)
+
+
+```
