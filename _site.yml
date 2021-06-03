@@ -18,5 +18,13 @@ navbar:
        
         - text: "HousePricing"
           href: HousePrice.html
+          
+        - text: "HomeWork1"
+          href: HomeWork1.html
+          
+        - text: "HomeWork2"
+          href: HomeWork2.html
+        
+  
 
 output: distill::distill_article

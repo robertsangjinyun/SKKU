@@ -1,0 +1,95 @@
+---
+title: "HomeWork2"
+author: "Yun Sang Jin"
+date: '2021 5 13 '
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+##데이터 생성
+
+```{r}
+
+example_data = data.frame(Gender = c("M","F","M","F","F","F","M","M","M","F","M","F"), Territory = c("East","East","East","West","East","West","West","West","East","East","West","West"),
+                          Claims = c(0,0,1,1,0,1,0,2,1,1,1,0))
+```
+
+
+
+
+
+##내재된 glm 함수로 계수 추정
+
+```{r}
+fit = glm(Claims ~ Gender + Territory, family = poisson(link=log), data = example_data)
+
+print(fit$coefficients)
+```
+
+
+
+
+##카테고리 변수 glm 추정에 사용된 형식에 맞게 숫자로 변환
+
+```{r}
+example_data2 = data.frame(Gender = c(1,0,1,0,0,0,1,1,1,0,1,0), Territory = c(0,0,0,1,0,1,1,1,0,0,1,1),
+                          Claims = c(0,0,1,1,0,1,0,2,1,1,1,0))
+```
+
+
+
+
+##Log-likelihood 함수 생성
+
+```{r}
+set.seed(1345)
+beta = rnorm(3)
+Negloglikelihood = function(beta) {
+  y = example_data2$Claims
+  lambda_Vec = exp(matrix(cbind(1, example_data2$Gender, example_data2$Territory), ncol = 3) %*% matrix(beta, nrow = 3))
+  -sum(-lambda_Vec + y*lambda_Vec -log(factorial(y)))
+}
+
+```
+
+
+
+
+
+##Gradient 함수 생성
+
+```{r}
+gradient = function(beta) {
+  y = example_data2$Claims
+  lambda_Vec = exp(matrix(cbind(1, example_data2$Gender, example_data2$Territory), ncol = 3) %*% matrix(beta, nrow = 3))
+  -colSums(as.vector(y - lambda_Vec) * matrix(cbind(1, example_data2$Gender, example_data2$Territory), ncol = 3))
+}
+```
+
+
+
+
+
+##Iteration  실행
+
+```{r}
+initial = beta
+i = 1
+gap = 1
+stophere = 0.00001
+n = 2000
+result = matrix(0, nrow = n, ncol = 3)
+while(gap > stophere & i < n) {
+  nextone = initial - 0.1*gradient(initial)
+  improve = abs(Negloglikelihood(initial) - Negloglikelihood(nextone))
+  result[i,] = nextone
+  initial = nextone
+  i = i + 1
+  
+}
+print(result[1500,])
+```
